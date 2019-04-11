@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
+
 	"gitlab.com/birchwoodlangham/go-web-service-application.git/config"
 )
 
