@@ -24,17 +24,17 @@ import (
 
 	"gitlab.com/birchwoodlangham/go-web-service-application.git/api"
 	"gitlab.com/birchwoodlangham/go-web-service-application.git/config"
+	"gitlab.com/birchwoodlangham/go-web-service-application.git/service"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/service"
 )
 
 var cfgFile string
-var configuration *service.Configuration
+var application service.Application
 
 var rootCmd = &cobra.Command{
 	Run: startService,
@@ -53,6 +53,10 @@ func (f *logFormatter) Format(entry *log.Entry) ([]byte, error) {
 }
 
 func startService(cmd *cobra.Command, args []string) {
+	if err := application.Init(); err != nil {
+		log.Fatalf("Could not initialize the application -- %s", err)
+	}
+
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 
@@ -71,7 +75,7 @@ func startService(cmd *cobra.Command, args []string) {
 
 	serverMsgChannel := make(chan api.ServerMessage, viper.GetInt(config.ServiceCommandBufferKey))
 
-	go startServer(serverMsgChannel, serverHost, serverPort, configuration.InitializeRoutes)
+	go startServer(serverMsgChannel, serverHost, serverPort, application.InitializeRoutes)
 
 	run := true
 
@@ -80,7 +84,7 @@ func startService(cmd *cobra.Command, args []string) {
 		case incomingSignal := <-signalChannel:
 			log.Infof("Caught signal %v: terminating\n", incomingSignal)
 
-			if err := configuration.Cleanup(); err != nil {
+			if err := application.Cleanup(); err != nil {
 				log.Errorf("Could not execute cleanup - %s", err)
 				continue
 			}
@@ -90,7 +94,7 @@ func startService(cmd *cobra.Command, args []string) {
 			switch incomingServerMessage {
 			case api.Stop:
 				log.Info("Stop request from API server has been received, stopping service")
-				if err := configuration.Cleanup(); err != nil {
+				if err := application.Cleanup(); err != nil {
 					log.Errorf("Could not execute cleanup - %s", err)
 					continue
 				}
@@ -118,12 +122,12 @@ func checkConfiguration(configs ...string) {
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(config *service.Configuration) {
-	configuration = config
+func Execute(app service.Application) {
+	application = app
 
-	rootCmd.Use = config.Properties.Usage
-	rootCmd.Short = config.Properties.ShortDescription
-	rootCmd.Long = config.Properties.LongDescription
+	rootCmd.Use = app.Properties().Usage
+	rootCmd.Short = app.Properties().ShortDescription
+	rootCmd.Long = app.Properties().LongDescription
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
