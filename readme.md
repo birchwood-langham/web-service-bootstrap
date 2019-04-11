@@ -98,3 +98,33 @@ log-level: DEBUG
 ```
 
 You can add additional configuration settings into this application.yaml file and they will be loaded and accessible via viper.
+
+To add your own CLI commands, you can just create a command, and add them before calling the `cmd.Execute()` function. For example:
+
+```go
+package main
+
+// omitted for clarity
+
+var helloCmd = &cobra.Command{
+    Use: "hello",
+    Short: "Says hello",
+    Long: "The obligatory hello world function",
+    Run: func(cmd *cobra.Command, args []string) {
+        fmt.Println("Hello, World!")
+    },
+}
+
+func main() {
+	props := service.NewProperties("my-go-webapp", 
+        "A short description to display in the command line help information", 
+        "A longer and more detailed description to display in the command line help information",
+    )
+
+    config := service.NewConfiguration(props, initializeRoutes, cleanup)
+    
+    cmd.AddCommand(helloCmd)
+    cmd.Execute(config)
+}
+```
+
