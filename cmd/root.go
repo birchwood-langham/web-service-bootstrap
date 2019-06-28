@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -156,15 +155,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		currentDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		// Search config in home directory with name "application" (without extension).
-		viper.AddConfigPath(currentDir)
-		viper.AddConfigPath(fmt.Sprintf("%s/conf", currentDir))
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("./conf")
 		viper.AddConfigPath(home)
 		viper.SetConfigName("application")
 	}
