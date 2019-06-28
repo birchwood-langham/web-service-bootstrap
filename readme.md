@@ -122,3 +122,46 @@ func main() {
     cmd.Execute(MyApp{})
 }
 ```
+
+## Configuration
+
+Inspired by go-micro config library, I have added some wrapper functions around the viper Get functions to allow for default values to be substituted in if the data is not present in the config file.
+
+### Example
+
+Instead of doing something like this:
+
+```go
+
+    serviceName := "Default Service Name"
+    
+    if viper.IsSet("service.name") {
+    	serviceName = viper.Get("service.name")
+    }
+
+```
+
+We can use:
+
+```go
+    serviceName := config.Get("service", "name").String("Default Service Name")
+```
+
+### Supported Data Types
+
+The following table contains the translation between the viper function signatures and the config functions we have defined.
+
+| Viper Function | Config Function | Return Data Type |
+| -------------- | --------------- | ---------------- |
+| viper.Get(string) | config.Get(...string).Value(interface{}) | interface{} |
+| viper.GetBool(string) | config.Get(...string).Bool(bool) | bool | 
+| viper.GetFloat64(string) | config.Get(...string).Float64(float64) | float64 |
+| viper.GetInt(string) | config.Get(...string).Int(int) | int |
+| viper.GetString(string) | config.Get(...string).String(string) | string |
+| viper.GetStringMap(string) | config.Get(...string).StringMap(map[string]interface{}) | map[string]interface{} |
+| viper.GetStringMapString(string) | config.Get(...string).StringMapString(map[string]string) | map[string]string |
+| viper.GetStringSlice(string) | config.Get(...string).StringSlice([]string) | []string |
+| viper.GetTime(string) | config.Get(...string).Time(time.Time) | time.Time |
+| viper.GetDuration(string) | config.Get(...string).Duration(time.Duration) | time.Duration |
+
+config.Get takes a variadic string parameter that lays out the path of the configuration you need to retrieve. The following type method takes a single parameter that is the default value, which will be returned if the configuration is not available in the configuration file.
