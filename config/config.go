@@ -1,5 +1,12 @@
 package config
 
+import (
+	"strings"
+	"time"
+
+	"github.com/spf13/viper"
+)
+
 const (
 	// VersionKey is the application.yaml key for retrieving application version number
 	VersionKey = "version"
@@ -22,3 +29,130 @@ const (
 	// LogLevelKey is the application.yaml key for retrieving the logging level
 	LogLevelKey = "log-level"
 )
+
+type Config struct {
+	path []string
+}
+
+func Get(path ...string) *Config {
+	return &Config{path: path}
+}
+
+func (c *Config) String(d string) string {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetString(k)
+	}
+
+	return d
+}
+
+func (c *Config) Int(d int) int {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetInt(k)
+	}
+
+	return d
+}
+
+func (c *Config) Value(d interface{}) interface{} {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.Get(k)
+	}
+
+	return d
+}
+
+func (c *Config) Bool(d bool) bool {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetBool(k)
+	}
+
+	return d
+}
+
+func (c *Config) Float64(d float64) float64 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetFloat64(k)
+	}
+
+	return d
+}
+
+func (c *Config) StringMap(d map[string]interface{}) map[string]interface{} {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetStringMap(k)
+	}
+
+	return d
+}
+
+func (c *Config) StringMapString(d map[string]string) map[string]string {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetStringMapString(k)
+	}
+
+	return d
+}
+
+func (c *Config) StringSlice(d []string) []string {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetStringSlice(k)
+	}
+
+	return d
+}
+
+func (c *Config) Time(d time.Time) time.Time {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetTime(k)
+	}
+
+	return d
+}
+
+func (c *Config) Duration(d time.Duration) time.Duration {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetDuration(k)
+	}
+
+	return d
+}
+
+
+func mkString(sep string, input ...string) string {
+	b := strings.Builder{}
+
+	addSep := false
+
+	for _, i := range input {
+		if addSep {
+			b.WriteString(sep)
+		}
+
+		b.WriteString(i)
+
+		addSep = true
+	}
+
+	return b.String()
+}
