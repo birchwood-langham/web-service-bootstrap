@@ -53,7 +53,7 @@ import (
 type MyApp struct {}
 
 // Init performs any initialization that is required for my application
-func (a *MyApp) Init() { }
+func (a *MyApp) Init() (err error) { return }
 
 // initialiseRoutes allows you to define the routes required for the service
 // and the handlers for each route
@@ -78,11 +78,11 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  cmd.Execute(MyApp{})
+  cmd.Execute(&MyApp{})
 }
 ```
 
-The application will look for an application.yaml file containing the properties it needs to run your application.
+The application will look for an application.yaml file containing the properties it needs to run your application. It will search the current directory and for a conf sub-directory for the application.yaml file.
 
 ```yaml
 # application.yaml
@@ -122,4 +122,3 @@ func main() {
     cmd.Execute(MyApp{})
 }
 ```
-
