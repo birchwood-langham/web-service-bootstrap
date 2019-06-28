@@ -162,8 +162,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".trend-risk" (without extension).
+		// Search config in home directory with name "application" (without extension).
 		viper.AddConfigPath(currentDir)
+		viper.AddConfigPath(fmt.Sprintf("%s/conf", currentDir))
 		viper.AddConfigPath(home)
 		viper.SetConfigName("application")
 	}
