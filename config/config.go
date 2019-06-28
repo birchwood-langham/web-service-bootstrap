@@ -58,7 +58,7 @@ func (c *Config) Int(d int) int {
 	return d
 }
 
-func (c *Config) Get(d interface{}) interface{} {
+func (c *Config) Value(d interface{}) interface{} {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -68,7 +68,7 @@ func (c *Config) Get(d interface{}) interface{} {
 	return d
 }
 
-func (c *Config) GetBool(d bool) bool {
+func (c *Config) Bool(d bool) bool {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -78,7 +78,7 @@ func (c *Config) GetBool(d bool) bool {
 	return d
 }
 
-func (c *Config) GetFloat64(d float64) float64 {
+func (c *Config) Float64(d float64) float64 {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -88,7 +88,7 @@ func (c *Config) GetFloat64(d float64) float64 {
 	return d
 }
 
-func (c *Config) GetStringMap(d map[string]interface{}) map[string]interface{} {
+func (c *Config) StringMap(d map[string]interface{}) map[string]interface{} {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -98,7 +98,7 @@ func (c *Config) GetStringMap(d map[string]interface{}) map[string]interface{} {
 	return d
 }
 
-func (c *Config) GetStringMapString(d map[string]string) map[string]string {
+func (c *Config) StringMapString(d map[string]string) map[string]string {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -108,7 +108,7 @@ func (c *Config) GetStringMapString(d map[string]string) map[string]string {
 	return d
 }
 
-func (c *Config) GetStringSlice(d []string) []string {
+func (c *Config) StringSlice(d []string) []string {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -118,7 +118,7 @@ func (c *Config) GetStringSlice(d []string) []string {
 	return d
 }
 
-func (c *Config) GetTime(d time.Time) time.Time {
+func (c *Config) Time(d time.Time) time.Time {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
@@ -128,7 +128,7 @@ func (c *Config) GetTime(d time.Time) time.Time {
 	return d
 }
 
-func (c *Config) GetDuration(d time.Duration) time.Duration {
+func (c *Config) Duration(d time.Duration) time.Duration {
 	k := mkString(".", c.path...)
 
 	if viper.IsSet(k) {
