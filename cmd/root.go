@@ -61,8 +61,17 @@ func startService(cmd *cobra.Command, args []string) {
 
 	checkConfiguration(config.ServiceHostKey, config.ServicePortKey)
 
-	serverHost := viper.GetString(config.ServiceHostKey)
-	serverPort := viper.GetInt(config.ServicePortKey)
+	serverHost := "localhost"
+
+	if viper.IsSet(config.ServiceHostKey) {
+		serverHost = viper.GetString(config.ServiceHostKey)
+	}
+
+	serverPort := 9900
+
+	if viper.IsSet(config.ServicePortKey) {
+		serverPort = viper.GetInt(config.ServicePortKey)
+	}
 
 	maxPort := MaxPort()
 
@@ -114,7 +123,7 @@ func startServer(messageChannel chan api.ServerMessage, host string, port int, i
 func checkConfiguration(configs ...string) {
 	for _, c := range configs {
 		if !viper.IsSet(c) {
-			log.Fatalf("could not find configuration for: %s, cannot continue", c)
+			log.Warnf("could not find configuration for: %s, using default values", c)
 		}
 	}
 }
