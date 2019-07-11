@@ -62,16 +62,38 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 
 // Run launches you server
 func (s *Server) Run() {
+	writeTimeout := config.DefaultWriteTimeout
+	readTimeout := config.DefaultReadTimeout
+	idleTimeout := config.DefaultIdleTimeout
+
+	if viper.IsSet(config.ServiceWriteTimeoutKey) {
+		writeTimeout = viper.GetInt(config.ServiceWriteTimeoutKey)
+	}
+
+	if viper.IsSet(config.ServiceReadTimeoutKey) {
+		readTimeout = viper.GetInt(config.ServiceReadTimeoutKey)
+	}
+
+	if viper.IsSet(config.ServiceIdleTimeoutKey) {
+		idleTimeout = viper.GetInt(config.ServiceIdleTimeoutKey)
+	}
+
 	s.server = &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", s.host, s.port),
-		WriteTimeout: time.Second * time.Duration(viper.GetInt(config.ServiceWriteTimeoutKey)),
-		ReadTimeout:  time.Second * time.Duration(viper.GetInt(config.ServiceReadTimeoutKey)),
-		IdleTimeout:  time.Second * time.Duration(viper.GetInt(config.ServiceIdleTimeoutKey)),
+		WriteTimeout: time.Second * time.Duration(writeTimeout),
+		ReadTimeout:  time.Second * time.Duration(readTimeout),
+		IdleTimeout:  time.Second * time.Duration(idleTimeout),
 		Handler:      s.Router,
 	}
 
 	if err := s.server.ListenAndServe(); err != nil {
-		log.Errorf("Could not start %s service: %v\n", viper.GetString(config.ServiceNameKey), err)
+		serviceName := "Unspecified"
+
+		if viper.IsSet(config.ServiceNameKey) {
+			serviceName = viper.GetString(config.ServiceNameKey)
+		}
+
+		log.Errorf("Could not start %s service: %v\n", serviceName, err)
 		// controlled stop by sending a stop message to the main thread
 		s.messageChannel <- Stop
 	}

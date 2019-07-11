@@ -34,3 +34,5 @@ fabric.properties
 
 
 .vscode/*
+
+log/
