@@ -28,6 +28,12 @@ const (
 	LogFilePathKey = "log-file-path"
 	// LogLevelKey is the application.yaml key for retrieving the logging level
 	LogLevelKey = "log-level"
+	// DefaultWriteTimeout is the number of seconds before a write request will timeout if an alternative has not been specified in the configuration file
+	DefaultWriteTimeout int = 20
+	// DefaultReadTimeout is the number of seconds before a write request will timeout if an alternative has not been specified in the configuration file
+	DefaultReadTimeout int = 20
+	// DefaultIdleTimeout is the number of seconds before a write request will timeout if an alternative has not been specified in the configuration file
+	DefaultIdleTimeout int = 60
 )
 
 type Config struct {
@@ -137,7 +143,6 @@ func (c *Config) Duration(d time.Duration) time.Duration {
 
 	return d
 }
-
 
 func mkString(sep string, input ...string) string {
 	b := strings.Builder{}
