@@ -30,10 +30,8 @@ go mod init my-go-webapp
 Use go get to add this project as a dependency to your Go module
 
 ```bash
-go get gitlab.com/birchwoodlangham/go-web-service-application.git
+go get github.com/birchwood-langham/go-web-service-application
 ```
-
-> *__NOTE:__* Due to known issues with GitLab, you will need to include the .git at the end of the project name otherwise you won't be able to pull the project properly using go get.
 
 To create and start your application, you simply need to implement the service.Application interface and pass you Application to the cmd.Execute() function to launch your application.
 
@@ -44,19 +42,37 @@ package main
 import (
   "fmt"
   "net/http"
+  "database/sql"
 
-  "gitlab.com/birchwoodlangham/go-web-service-application.git/service"
-  "gitlab.com/birchwoodlangham/go-web-service-application.git/cmd"
+  "github.com/birchwood-langham/go-web-service-application/service"
+  "github.com/birchwood-langham/go-web-service-application/cmd"
   "github.com/gorilla/mux"
 )
 
-type MyApp struct {}
+type MyApp struct {
+  db *sql.DB
+}
+
+func New() *MyApp {
+  // At this point in the application execution, viper will not have been initialized
+  // and you will not be able to read properties from your configuration file
+  return &MyApp{}
+}
 
 // Init performs any initialization that is required for my application
-func (a *MyApp) Init() (err error) { return }
+func (a *MyApp) Init() (err error) { 
+  // Once the application has been started, viper will have been configured, and Init is called to 
+  // initialize whatever you need for your application
+
+  // for example if the application needs access to a database, we can initialize it here before anything
+  // else happens
+  a.db, err = sql.Open(...) // you can use properties from Viper now to help initialize your application
+  return 
+}
 
 // initialiseRoutes allows you to define the routes required for the service
-// and the handlers for each route
+// and the handlers for each route, you can define these routes using the methods defined by
+// gorilla mux
 func (a *MyApp) InitializeRoutes(s *api.Server) {
   s.Router.HandleFunc("/hello", hello).Methods("GET")
 }
@@ -68,6 +84,8 @@ func (a *MyApp) Cleanup() error {
   return nil
 }
 
+// properties provide the short, lomg, and usage information to be displayed by the application 
+// if you pass --help on the command line
 func (a *MyApp) Properties() *service.Properties {
 	return service.NewProperties("usage", "short description", "A long detailed description")
 } 
@@ -78,7 +96,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  cmd.Execute(&MyApp{})
+  cmd.Execute(New())
 }
 ```
 
@@ -119,7 +137,7 @@ var helloCmd = &cobra.Command{
 
 func main() {
     cmd.AddCommand(helloCmd)
-    cmd.Execute(MyApp{})
+    cmd.Execute(New())
 }
 ```
 
@@ -164,4 +182,6 @@ The following table contains the translation between the viper function signatur
 | viper.GetTime(string) | config.Get(...string).Time(time.Time) | time.Time |
 | viper.GetDuration(string) | config.Get(...string).Duration(time.Duration) | time.Duration |
 
-config.Get takes a variadic string parameter that lays out the path of the configuration you need to retrieve. The following type method takes a single parameter that is the default value, which will be returned if the configuration is not available in the configuration file.
+config.Get takes a variadic string parameter that lays out the path of the configuration you need to retrieve. 
+The following type method takes a single parameter that is the default value, which will be returned if the 
+configuration is not available in the configuration file.
