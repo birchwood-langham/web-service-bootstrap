@@ -30,7 +30,7 @@ go mod init my-go-webapp
 Use go get to add this project as a dependency to your Go module
 
 ```bash
-go get github.com/birchwood-langham/go-web-service-application
+go get github.com/birchwood-langham/web-service-bootstrap
 ```
 
 To create and start your application, you simply need to implement the service.Application interface and pass you Application to the cmd.Execute() function to launch your application.
@@ -44,8 +44,8 @@ import (
   "net/http"
   "database/sql"
 
-  "github.com/birchwood-langham/go-web-service-application/service"
-  "github.com/birchwood-langham/go-web-service-application/cmd"
+  "github.com/birchwood-langham/web-service-bootstrap/service"
+  "github.com/birchwood-langham/web-service-bootstrap/cmd"
   "github.com/gorilla/mux"
 )
 

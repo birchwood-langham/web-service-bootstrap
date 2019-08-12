@@ -1,4 +1,4 @@
-module gitlab.com/birchwoodlangham/go-web-service-application.git
+module github.com/birchwood-langham/web-service-bootstrap
 
 go 1.12
 
