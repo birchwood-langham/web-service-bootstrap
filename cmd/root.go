@@ -21,9 +21,9 @@ import (
 	"strings"
 	"syscall"
 
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/api"
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/config"
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/service"
+	"github.com/birchwood-langham/web-service-bootstrap/api"
+	"github.com/birchwood-langham/web-service-bootstrap/config"
+	"github.com/birchwood-langham/web-service-bootstrap/service"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/rifflock/lfshook"

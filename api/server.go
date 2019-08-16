@@ -11,7 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/config"
+	"github.com/birchwood-langham/web-service-bootstrap/config"
 )
 
 // ServerMessage represents fixed messages processes can send to the server process

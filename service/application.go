@@ -1,6 +1,6 @@
 package service
 
-import "gitlab.com/birchwoodlangham/go-web-service-application.git/api"
+import "github.com/birchwood-langham/web-service-bootstrap/api"
 
 type Application interface {
 	Init() error
