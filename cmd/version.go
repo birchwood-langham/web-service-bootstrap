@@ -21,7 +21,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/config"
+	"github.com/birchwood-langham/web-service-bootstrap/config"
 )
 
 // versionCmd represents the version command

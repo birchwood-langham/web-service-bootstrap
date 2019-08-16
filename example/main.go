@@ -3,13 +3,12 @@ package main
 import (
 	"net/http"
 
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/api"
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/cmd"
-	"gitlab.com/birchwoodlangham/go-web-service-application.git/service"
+	"github.com/birchwood-langham/web-service-bootstrap/api"
+	"github.com/birchwood-langham/web-service-bootstrap/cmd"
+	"github.com/birchwood-langham/web-service-bootstrap/service"
 )
 
-
-type MyApp struct {}
+type MyApp struct{}
 
 // Init performs any initialization that is required for my application
 func (a *MyApp) Init() (err error) {
