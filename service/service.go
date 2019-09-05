@@ -8,8 +8,8 @@ type Properties struct {
 }
 
 // NewProperties creates a new set of properties for the service command
-func NewProperties(usage string, shortDescription string, longDescription string) *Properties {
-	return &Properties{
+func NewProperties(usage string, shortDescription string, longDescription string) Properties {
+	return Properties{
 		usage,
 		shortDescription,
 		longDescription,

@@ -28,7 +28,7 @@ func (a *MyApp) Cleanup() error {
 	return nil
 }
 
-func (a *MyApp) Properties() *service.Properties {
+func (a *MyApp) Properties() service.Properties {
 	return service.NewProperties("usage", "short description", "A long detailed description")
 }
 

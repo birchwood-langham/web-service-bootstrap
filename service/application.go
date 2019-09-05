@@ -6,5 +6,5 @@ type Application interface {
 	Init() error
 	InitializeRoutes(server *api.Server)
 	Cleanup() error
-	Properties() *Properties
+	Properties() Properties
 }
