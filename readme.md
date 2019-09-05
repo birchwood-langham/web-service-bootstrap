@@ -86,7 +86,7 @@ func (a *MyApp) Cleanup() error {
 
 // properties provide the short, lomg, and usage information to be displayed by the application 
 // if you pass --help on the command line
-func (a *MyApp) Properties() *service.Properties {
+func (a *MyApp) Properties() service.Properties {
 	return service.NewProperties("usage", "short description", "A long detailed description")
 } 
 
