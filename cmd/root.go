@@ -18,16 +18,15 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
+
+	"go.uber.org/zap"
 
 	"github.com/birchwood-langham/web-service-bootstrap/api"
 	"github.com/birchwood-langham/web-service-bootstrap/config"
+	"github.com/birchwood-langham/web-service-bootstrap/logger"
 	"github.com/birchwood-langham/web-service-bootstrap/service"
-
 	"github.com/mitchellh/go-homedir"
-	"github.com/rifflock/lfshook"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -39,21 +38,14 @@ var rootCmd = &cobra.Command{
 	Run: startService,
 }
 
-type logFormatter struct{}
-
 // MaxPort returns the maximum port number available to run your service on
 func MaxPort() int {
 	return int(^uint16(0))
 }
 
-func (f *logFormatter) Format(entry *log.Entry) ([]byte, error) {
-	msg := fmt.Sprintf("%s - %s: %s\n", entry.Time.Format("2006-01-02 15:04:05.000"), strings.ToUpper(entry.Level.String()), entry.Message)
-	return []byte(msg), nil
-}
-
 func startService(cmd *cobra.Command, args []string) {
 	if err := application.Init(); err != nil {
-		log.Fatalf("Could not initialize the application -- %s", err)
+		zap.S().Fatalf("Could not initialize the application -- %s", err)
 	}
 
 	signalChannel := make(chan os.Signal, 1)
@@ -76,10 +68,10 @@ func startService(cmd *cobra.Command, args []string) {
 	maxPort := MaxPort()
 
 	if serverPort == 0 || serverPort > maxPort {
-		log.Fatalf("Server port is out of range, port must be between %d and %d", 1, maxPort)
+		zap.S().Fatalf("Server port is out of range, port must be between %d and %d", 1, maxPort)
 	}
 
-	log.Infof("Starting service on %s:%d", serverHost, serverPort)
+	zap.S().Infof("Starting service on %s:%d", serverHost, serverPort)
 
 	serverMsgChannel := make(chan api.ServerMessage, viper.GetInt(config.ServiceCommandBufferKey))
 
@@ -90,10 +82,10 @@ func startService(cmd *cobra.Command, args []string) {
 	for run {
 		select {
 		case incomingSignal := <-signalChannel:
-			log.Infof("Caught signal %v: terminating\n", incomingSignal)
+			zap.S().Infof("Caught signal %v: terminating\n", incomingSignal)
 
 			if err := application.Cleanup(); err != nil {
-				log.Errorf("Could not execute cleanup - %s", err)
+				zap.S().Errorf("Could not execute cleanup - %s", err)
 				continue
 			}
 
@@ -101,14 +93,14 @@ func startService(cmd *cobra.Command, args []string) {
 		case incomingServerMessage := <-serverMsgChannel:
 			switch incomingServerMessage {
 			case api.Stop:
-				log.Info("Stop request from API server has been received, stopping service")
+				zap.S().Info("Stop request from API server has been received, stopping service")
 				if err := application.Cleanup(); err != nil {
-					log.Errorf("Could not execute cleanup - %s", err)
+					zap.S().Errorf("Could not execute cleanup - %s", err)
 					continue
 				}
 				run = false
 			default:
-				log.Infof("Received an unrecognised command from the API server: %d, ignoring", incomingServerMessage)
+				zap.S().Infof("Received an unrecognised command from the API server: %d, ignoring", incomingServerMessage)
 			}
 		}
 	}
@@ -116,6 +108,7 @@ func startService(cmd *cobra.Command, args []string) {
 
 func startServer(messageChannel chan api.ServerMessage, host string, port int, initializeRoutes func(*api.Server)) {
 	server := api.New(host, port, messageChannel)
+
 	server.Initialize(initializeRoutes)
 	server.Run()
 }
@@ -123,7 +116,7 @@ func startServer(messageChannel chan api.ServerMessage, host string, port int, i
 func checkConfiguration(configs ...string) {
 	for _, c := range configs {
 		if !viper.IsSet(c) {
-			log.Warnf("could not find configuration for: %s, using default values", c)
+			zap.S().Warnf("could not find configuration for: %s, using default values", c)
 		}
 	}
 }
@@ -153,6 +146,8 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	initLogger()
+
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -174,35 +169,26 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		setupLogger()
-
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		zap.S().Errorf("Could not read in viper config: %v", err)
+		return
 	}
+
+	zap.S().Infof("Using config file: %s", viper.ConfigFileUsed())
+
+	setupLogger()
+}
+
+func initLogger() {
+	// we don't know what file we're using yet, but we want the format of the logging to be set
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync()
+	zap.ReplaceGlobals(logger)
 }
 
 func setupLogger() {
-	fileHook := lfshook.NewHook(viper.GetString(config.LogFilePathKey), new(logFormatter))
-	log.SetFormatter(new(logFormatter))
-	log.SetOutput(os.Stderr)
-	log.AddHook(fileHook)
-
-	switch strings.ToUpper(viper.GetString(config.LogLevelKey)) {
-	case "DEBUG":
-		log.SetLevel(log.DebugLevel)
-	case "INFO":
-		log.SetLevel(log.InfoLevel)
-	case "WARN":
-		log.SetLevel(log.WarnLevel)
-	case "ERROR":
-		log.SetLevel(log.ErrorLevel)
-	case "FATAL":
-		log.SetLevel(log.FatalLevel)
-	case "PANIC":
-		log.SetLevel(log.PanicLevel)
-	default:
-		log.SetLevel(log.InfoLevel)
-	}
+	log := logger.New(logger.ApplicationLogLevel())
+	zap.ReplaceGlobals(log)
 }
 
 // GetRootCommand returns the service RootCommand so that you can extend it and add your own commands

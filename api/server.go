@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/birchwood-langham/web-service-bootstrap/config"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
-
-	log "github.com/sirupsen/logrus"
-
-	"github.com/birchwood-langham/web-service-bootstrap/config"
+	"go.uber.org/zap"
 )
 
 // ServerMessage represents fixed messages processes can send to the server process
@@ -56,7 +54,7 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	if _, err := w.Write(response); err != nil {
-		log.Errorf("Could not write response: %v", err)
+		zap.S().Errorf("Could not write response: %v", err)
 	}
 }
 
@@ -93,7 +91,7 @@ func (s *Server) Run() {
 			serviceName = viper.GetString(config.ServiceNameKey)
 		}
 
-		log.Errorf("Could not start %s service: %v\n", serviceName, err)
+		zap.S().Errorf("Could not start %s service: %v\n", serviceName, err)
 		// controlled stop by sending a stop message to the main thread
 		s.messageChannel <- Stop
 	}
