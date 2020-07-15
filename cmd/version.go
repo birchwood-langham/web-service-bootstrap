@@ -17,11 +17,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/birchwood-langham/web-service-bootstrap/config"
 	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
-
-	"github.com/birchwood-langham/web-service-bootstrap/config"
 )
 
 // versionCmd represents the version command
