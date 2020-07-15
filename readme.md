@@ -6,12 +6,12 @@ This library provides a basic structure for creating a web application using Go.
 
 The third party libraries we are using are:
 
-| Library | Description | Link |
-| ------- | ----------- | ---- |
-| Cobra | Library for creating CLI applications | [https://github.com/spf13/cobra](https://github.com/spf13/cobra) |
-| Viper | Library for application configuration | [https://github.com/spf13/viper](https://github.com/spf13/viper) |
+| Library     | Description                                    | Link                                                             |
+| ----------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| Cobra       | Library for creating CLI applications          | [https://github.com/spf13/cobra](https://github.com/spf13/cobra) |
+| Viper       | Library for application configuration          | [https://github.com/spf13/viper](https://github.com/spf13/viper) |
 | Gorilla Mux | Library for providing URL routing and dispatch | [https://github.com/gorilla/mux](https://github.com/gorilla/mux) |
-| Logrus | Library for Structured, pluggable logging | [github.com/sirupsen/logrus](github.com/sirupsen/logrus) |
+| Zap         | Library for Structured, pluggable logging      | [https://github.com/uber-go/zap](https://github.com/uber-go/zap) |
 
 ## Pre-requisites
 
@@ -113,7 +113,7 @@ service:
   read-timeout-seconds: 20
   idle-timeout-seconds: 60
   api-command-buffer: 100
-log-file-path: ./log/trend-risk.log
+log-file-path: ./log/app.log
 log-level: DEBUG
 ```
 
@@ -169,18 +169,18 @@ We can use:
 
 The following table contains the translation between the viper function signatures and the config functions we have defined.
 
-| Viper Function | Config Function | Return Data Type |
-| -------------- | --------------- | ---------------- |
-| viper.Get(string) | config.Get(...string).Value(interface{}) | interface{} |
-| viper.GetBool(string) | config.Get(...string).Bool(bool) | bool | 
-| viper.GetFloat64(string) | config.Get(...string).Float64(float64) | float64 |
-| viper.GetInt(string) | config.Get(...string).Int(int) | int |
-| viper.GetString(string) | config.Get(...string).String(string) | string |
-| viper.GetStringMap(string) | config.Get(...string).StringMap(map[string]interface{}) | map[string]interface{} |
-| viper.GetStringMapString(string) | config.Get(...string).StringMapString(map[string]string) | map[string]string |
-| viper.GetStringSlice(string) | config.Get(...string).StringSlice([]string) | []string |
-| viper.GetTime(string) | config.Get(...string).Time(time.Time) | time.Time |
-| viper.GetDuration(string) | config.Get(...string).Duration(time.Duration) | time.Duration |
+| Viper Function                   | Config Function                                          | Return Data Type       |
+| -------------------------------- | -------------------------------------------------------- | ---------------------- |
+| viper.Get(string)                | config.Get(...string).Value(interface{})                 | interface{}            |
+| viper.GetBool(string)            | config.Get(...string).Bool(bool)                         | bool                   |
+| viper.GetFloat64(string)         | config.Get(...string).Float64(float64)                   | float64                |
+| viper.GetInt(string)             | config.Get(...string).Int(int)                           | int                    |
+| viper.GetString(string)          | config.Get(...string).String(string)                     | string                 |
+| viper.GetStringMap(string)       | config.Get(...string).StringMap(map[string]interface{})  | map[string]interface{} |
+| viper.GetStringMapString(string) | config.Get(...string).StringMapString(map[string]string) | map[string]string      |
+| viper.GetStringSlice(string)     | config.Get(...string).StringSlice([]string)              | []string               |
+| viper.GetTime(string)            | config.Get(...string).Time(time.Time)                    | time.Time              |
+| viper.GetDuration(string)        | config.Get(...string).Duration(time.Duration)            | time.Duration          |
 
 config.Get takes a variadic string parameter that lays out the path of the configuration you need to retrieve. 
 The following type method takes a single parameter that is the default value, which will be returned if the 
