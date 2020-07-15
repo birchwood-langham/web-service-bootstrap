@@ -9,5 +9,10 @@ service:
 usage: application
 short-description: short description
 long-description: longer description
-log-file-path: ./log/trend-risk.log
-log-level: DEBUG
+log:
+  filepath: ./log/myapp.log
+  level: DEBUG
+  max-size: 100
+  max-backup: 5
+  max-age: 30
+  compress: true
