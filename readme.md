@@ -40,10 +40,10 @@ To create and start your application, you simply need to implement the service.A
 package main
 
 import (
-  "fmt"
   "net/http"
   "database/sql"
 
+  "github.com/birchwood-langham/web-service-bootstrap/api"
   "github.com/birchwood-langham/web-service-bootstrap/service"
   "github.com/birchwood-langham/web-service-bootstrap/cmd"
   "github.com/gorilla/mux"
@@ -104,7 +104,7 @@ The application will look for an application.yaml file containing the properties
 
 ```yaml
 # application.yaml
-version: 0.0.1
+version: 0.1.0
 service:
   name: my-go-webapp
   host: localhost
@@ -113,8 +113,13 @@ service:
   read-timeout-seconds: 20
   idle-timeout-seconds: 60
   api-command-buffer: 100
-log-file-path: ./log/app.log
-log-level: DEBUG
+log:
+  filepath: ./log/myapp.log
+  level: DEBUG
+  max-size: 100
+  max-backup: 5
+  max-age: 30
+  compress: true
 ```
 
 You can add additional configuration settings into this application.yaml file and they will be loaded and accessible via viper.
