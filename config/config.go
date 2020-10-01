@@ -1,6 +1,7 @@
 package config
 
 import (
+	"math"
 	"strings"
 	"time"
 
@@ -72,6 +73,54 @@ func (c *Config) Int(d int) int {
 	return d
 }
 
+func (c *Config) Int8(d int8) int8 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		v := viper.GetInt32(k)
+
+		if v >= math.MinInt8 && v <= math.MaxInt8 {
+			return int8(v)
+		}
+	}
+
+	return d
+}
+
+func (c *Config) Int16(d int16) int16 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		v := viper.GetInt32(k)
+
+		if v >= math.MinInt16 && v <= math.MaxInt16 {
+			return int16(v)
+		}
+	}
+
+	return d
+}
+
+func (c *Config) Int32(d int32) int32 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetInt32(k)
+	}
+
+	return d
+}
+
+func (c *Config) Int64(d int64) int64 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetInt64(k)
+	}
+
+	return d
+}
+
 func (c *Config) Value(d interface{}) interface{} {
 	k := mkString(".", c.path...)
 
@@ -97,6 +146,20 @@ func (c *Config) Float64(d float64) float64 {
 
 	if viper.IsSet(k) {
 		return viper.GetFloat64(k)
+	}
+
+	return d
+}
+
+func (c *Config) Float32(d float32) float32 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		v := viper.GetFloat64(k)
+
+		if v >= -math.MaxFloat32 && v <= math.MaxFloat32 {
+			return float32(v)
+		}
 	}
 
 	return d
@@ -147,6 +210,64 @@ func (c *Config) Duration(d time.Duration) time.Duration {
 
 	if viper.IsSet(k) {
 		return viper.GetDuration(k)
+	}
+
+	return d
+}
+
+func (c *Config) Uint(d uint) uint {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetUint(k)
+	}
+
+	return d
+}
+
+func (c *Config) Uint8(d uint8) uint8 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		v := viper.GetUint(k)
+
+		if v <= math.MaxUint8 {
+			return uint8(v)
+		}
+	}
+
+	return d
+}
+
+func (c *Config) Uint16(d uint16) uint16 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		v := viper.GetUint(k)
+
+		if v <= math.MaxUint16 {
+			return uint16(v)
+		}
+	}
+
+	return d
+}
+
+func (c *Config) Uint32(d uint32) uint32 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetUint32(k)
+	}
+
+	return d
+}
+
+func (c *Config) Uint64(d uint64) uint64 {
+	k := mkString(".", c.path...)
+
+	if viper.IsSet(k) {
+		return viper.GetUint64(k)
 	}
 
 	return d
