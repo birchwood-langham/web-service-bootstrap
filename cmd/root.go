@@ -26,6 +26,7 @@ import (
 	"github.com/birchwood-langham/web-service-bootstrap/config"
 	"github.com/birchwood-langham/web-service-bootstrap/logger"
 	"github.com/birchwood-langham/web-service-bootstrap/service"
+
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -48,7 +49,7 @@ func startService(cmd *cobra.Command, args []string) {
 		zap.S().Fatalf("Could not initialize the application -- %s", err)
 	}
 
-	signalChannel := make(chan os.Signal, 1)
+	signalChannel := make(chan os.Signal, 100)
 	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 
 	checkConfiguration(config.ServiceHostKey, config.ServicePortKey)
@@ -73,13 +74,12 @@ func startService(cmd *cobra.Command, args []string) {
 
 	zap.S().Infof("Starting service on %s:%d", serverHost, serverPort)
 
-	serverMsgChannel := make(chan api.ServerMessage, viper.GetInt(config.ServiceCommandBufferKey))
+	serverMsgChannel := make(chan struct{}, viper.GetInt(config.ServiceCommandBufferKey))
 
 	go startServer(serverMsgChannel, serverHost, serverPort, application.InitializeRoutes)
 
-	run := true
-
-	for run {
+runLoop:
+	for {
 		select {
 		case incomingSignal := <-signalChannel:
 			zap.S().Infof("Caught signal %v: terminating\n", incomingSignal)
@@ -89,24 +89,20 @@ func startService(cmd *cobra.Command, args []string) {
 				continue
 			}
 
-			run = false
-		case incomingServerMessage := <-serverMsgChannel:
-			switch incomingServerMessage {
-			case api.Stop:
-				zap.S().Info("Stop request from API server has been received, stopping service")
-				if err := application.Cleanup(); err != nil {
-					zap.S().Errorf("Could not execute cleanup - %s", err)
-					continue
-				}
-				run = false
-			default:
-				zap.S().Infof("Received an unrecognised command from the API server: %d, ignoring", incomingServerMessage)
+			break runLoop
+
+		case <-serverMsgChannel:
+			zap.S().Info("Stop request from API server has been received, stopping service")
+			if err := application.Cleanup(); err != nil {
+				zap.S().Errorf("Could not execute cleanup - %s", err)
 			}
+
+			break runLoop
 		}
 	}
 }
 
-func startServer(messageChannel chan api.ServerMessage, host string, port int, initializeRoutes func(*api.Server)) {
+func startServer(messageChannel chan struct{}, host string, port int, initializeRoutes func(*api.Server)) {
 	server := api.New(host, port, messageChannel)
 
 	server.Initialize(initializeRoutes)
@@ -146,7 +142,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	initLogger()
+	//initLogger()
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -174,21 +170,14 @@ func initConfig() {
 		return
 	}
 
-	zap.S().Infof("Using config file: %s", viper.ConfigFileUsed())
-
 	setupLogger()
-}
 
-func initLogger() {
-	// we don't know what file we're using yet, but we want the format of the logging to be set
-	logger, _ := zap.NewDevelopment()
-	defer logger.Sync()
-	zap.ReplaceGlobals(logger)
+	zap.S().Infof("Using config file: %s", viper.ConfigFileUsed())
 }
 
 func setupLogger() {
-	log := logger.New(logger.ApplicationLogLevel())
-	zap.ReplaceGlobals(log)
+	l := logger.New(logger.ApplicationLogLevel(), logger.DefaultLumberjackLogger())
+	zap.ReplaceGlobals(l)
 }
 
 // GetRootCommand returns the service RootCommand so that you can extend it and add your own commands
