@@ -84,13 +84,7 @@ runLoop:
 		case incomingSignal := <-signalChannel:
 			zap.S().Infof("Caught signal %v: terminating\n", incomingSignal)
 
-			if err := application.Cleanup(); err != nil {
-				zap.S().Errorf("Could not execute cleanup - %s", err)
-				continue
-			}
-
-			break runLoop
-
+			serverMsgChannel <- struct{}{}
 		case <-serverMsgChannel:
 			zap.S().Info("Stop request from API server has been received, stopping service")
 			if err := application.Cleanup(); err != nil {
