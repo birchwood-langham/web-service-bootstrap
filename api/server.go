@@ -12,23 +12,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// ServerMessage represents fixed messages processes can send to the server process
-type ServerMessage uint16
-
-// Stop is the message to route to the server process when we want the server to terminate
-const Stop ServerMessage = 0
-
 // Server represents the Http Server we are creating to provide the web service we are building
 type Server struct {
 	Router         *mux.Router
-	messageChannel chan ServerMessage
+	messageChannel chan struct{}
 	host           string
 	port           int
 	server         *http.Server
 }
 
 // New creates a new api.Server instance running on the given host and port
-func New(hostname string, port int, messageChannel chan ServerMessage) *Server {
+func New(hostname string, port int, messageChannel chan struct{}) *Server {
 	return &Server{
 		host:           hostname,
 		port:           port,
@@ -93,6 +87,6 @@ func (s *Server) Run() {
 
 		zap.S().Errorf("Could not start %s service: %v\n", serviceName, err)
 		// controlled stop by sending a stop message to the main thread
-		s.messageChannel <- Stop
+		s.messageChannel <- struct{}{}
 	}
 }
