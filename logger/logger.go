@@ -32,9 +32,9 @@ func ZapEncoder() zapcore.Encoder {
 }
 
 func ZapWriter(writer io.Writer) zapcore.WriteSyncer {
-	once.Do(func() {
+	if syncer == nil {
 		syncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(writer), zapcore.AddSync(os.Stdout))
-	})
+	}
 
 	return syncer
 }
