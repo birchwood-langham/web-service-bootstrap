@@ -60,8 +60,10 @@ func DefaultLumberjackLogger() *lumberjack.Logger {
 }
 
 func New(level zapcore.Level, writer io.Writer) *zap.Logger {
-	core = zapcore.NewCore(ZapEncoder(), ZapWriter(writer), level)
-	log = zap.New(core, zap.AddCaller())
+	once.Do(func() {
+		core = zapcore.NewCore(ZapEncoder(), ZapWriter(writer), level)
+		log = zap.New(core, zap.AddCaller())
+	})
 
 	defer func() {
 		_ = log.Sync()
